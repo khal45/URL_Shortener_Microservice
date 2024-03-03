@@ -49,7 +49,7 @@ app.post('/api/shorturl', (req, res) => {
   }
   // if statement to verify if url is valid
   if (!isValidUrl(urlString)) {
-    res.json({ error: "Invalid url" });
+    res.json({ error: 'invalid url' });
   } else {
     // save to db
     (async () => {
