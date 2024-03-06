@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
-// const dns = require("dns");
+const dns = require("dns");
 const urlparser = require("url");
 const app = express();
 const mongoose = require("mongoose");
@@ -28,7 +28,7 @@ const urlSchema = new mongoose.Schema({
     required: true
   },
   shorturl: {
-    type: String
+    type: Number
   }
 });
 
@@ -73,6 +73,37 @@ app.post('/api/shorturl', (req, res) => {
       }
     })();
   }
+  // using dns lookup
+  // const hostname = new URL(urlString).hostname;
+  // dns.lookup(hostname, (error, address, family) => {
+  //   // if an error occurs
+  //   if (error) {
+  //     res.json({ error: "invalid url" });
+  //   } else {
+  //     //  save to db
+  //     (async () => {
+  //       try {
+  //         const urlCount = await url.countDocuments({})
+  //         const newUrl = new url({
+  //           url: urlString,
+  //           shorturl: urlCount
+  //         });
+  //         const result = await newUrl.save();
+  //         console.log(result);
+  //         const latestShortUrl = await url.findOne({}).sort({ _id: -1 }).select('shorturl');
+
+  //         // Send the response with the original and short URL
+  //         res.json({
+  //           original_url: urlString,
+  //           short_url: latestShortUrl.shorturl
+  //         });
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     })();
+
+  //   }
+  // })
 });
 // get function to redirect to url
 app.get("/api/shorturl/:short_url", async (req, res) => {
