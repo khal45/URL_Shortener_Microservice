@@ -36,46 +36,47 @@ const url = mongoose.model("url", urlSchema);
 
 // Your first API endpoint
 app.post('/api/shorturl', (req, res) => {
-  // save the url to a variable urlString
+  // // save the url to a variable urlString
   const urlString = req.body.url
-  // function to test if the url is valid
-  const isValidUrl = (urlString) => {
-    try {
-      new URL(urlString);
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }
-  // if statement to verify if url is valid
-  if (!isValidUrl(urlString)) {
-    res.json({ error: 'invalid url' });
-  } else {
-    // save to db
-    (async () => {
-      try {
-        const urlCount = await url.countDocuments({})
-        const newUrl = new url({
-          url: urlString,
-          shorturl: urlCount
-        });
-        const result = await newUrl.save();
-        console.log(result);
-        const latestShortUrl = await url.findOne({}).sort({ _id: -1 }).select('shorturl');
+  // // function to test if the url is valid
+  // const isValidUrl = (urlString) => {
+  //   try {
+  //     new URL(urlString);
+  //     return true;
+  //   } catch (error) {
+  //     return false;
+  //   }
+  // }
+  // // if statement to verify if url is valid
+  // if (!isValidUrl(urlString)) {
+  //   res.json({ error: 'invalid url' });
+  // } else {
+  //   // save to db
+  //   (async () => {
+  //     try {
+  //       const urlCount = await url.countDocuments({})
+  //       const newUrl = new url({
+  //         url: urlString,
+  //         shorturl: urlCount
+  //       });
+  //       const result = await newUrl.save();
+  //       console.log(result);
+  //       const latestShortUrl = await url.findOne({}).sort({ _id: -1 }).select('shorturl');
 
-        // Send the response with the original and short URL
-        res.json({
-          original_url: urlString,
-          short_url: +latestShortUrl.shorturl
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    })();
-  }
+  //       // Send the response with the original and short URL
+  //       res.json({
+  //         original_url: urlString,
+  //         short_url: +latestShortUrl.shorturl
+  //       });
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   })();
+  // }
+
   // using dns lookup
   // const hostname = new URL(urlString).hostname;
-  // dns.lookup(hostname, (error, address, family) => {
+  // dns.lookup(hostname, async (error, address, family) => {
   //   // if an error occurs
   //   if (error) {
   //     res.json({ error: "invalid url" });
@@ -104,6 +105,35 @@ app.post('/api/shorturl', (req, res) => {
 
   //   }
   // })
+
+  // using regex
+  const urlRegex = /^(https?):\/\/[^\s/$.?#].[^\s]*$/i;
+  // if statement to check if the url doesn't match
+  if (!urlRegex.test(urlString)) {
+    res.json({ error: 'invalid url' });
+  } else {
+    // save to db
+    (async () => {
+      try {
+        const urlCount = await url.countDocuments({})
+        const newUrl = new url({
+          url: urlString,
+          shorturl: urlCount
+        });
+        const result = await newUrl.save();
+        console.log(result);
+        const latestShortUrl = await url.findOne({}).sort({ _id: -1 }).select('shorturl');
+
+        // Send the response with the original and short URL
+        res.json({
+          original_url: urlString,
+          short_url: +latestShortUrl.shorturl
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+  }
 });
 // get function to redirect to url
 app.get("/api/shorturl/:short_url", async (req, res) => {
